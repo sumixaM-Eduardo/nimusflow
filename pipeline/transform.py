@@ -44,6 +44,32 @@ def convert_data(sales):
         valid_sales.append(sale)
     return valid_sales, invalid_sales
 
-
-
+def validate_data(valid_sales, invalid_sales):
+    approved_sales = []
+    rejected_sales = []
+    for sale in valid_sales:
+        if sale['order_id'] <= 0:
+            rejected_sales.append(sale)
+            continue
+        if sale['customer_id'] <= 0:
+            rejected_sales.append(sale)
+            continue
+        if sale['product_name'] == '':
+            rejected_sales.append(sale)
+            continue
+        if sale['quantity'] <= 0:
+            rejected_sales.append(sale)
+            continue
+        if sale['unit_price'] <= 0:
+            rejected_sales.append(sale)
+            continue
+        if sale['payment_method'] == '':
+            rejected_sales.append(sale)
+            continue
+        if sale['city'] == '':
+            rejected_sales.append(sale)
+            continue
+        approved_sales.append(sale)
+    rejected_sales.extend(invalid_sales)
+    return approved_sales, rejected_sales
 
