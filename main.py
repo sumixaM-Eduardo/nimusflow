@@ -16,7 +16,7 @@ def main():
         insert_data(approved_data, rejected_data)
         logging.info('Pipeline finished')
     except Exception as e:
-        logging.info(f'Pipeline failed: {e}')
+        logging.error(f'Pipeline failed: {e}')
         raise
 
 
