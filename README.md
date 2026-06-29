@@ -1,4 +1,4 @@
-# NimusFlow
+# nimusflow
 
 NimusFlow is a learning project focused on data engineering fundamentals and system architecture.
 
