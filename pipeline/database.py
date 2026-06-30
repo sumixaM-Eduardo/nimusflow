@@ -1,6 +1,10 @@
+from dotenv import load_dotenv
+import os
 import sqlite3
 import logging
-pathdb = 'data/sales.db'
+
+load_dotenv()
+pathdb = os.getenv('DATABASE_PATH')
 
 def create_table():
     conn = sqlite3.connect(pathdb)

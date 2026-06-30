@@ -1,6 +1,12 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 import sqlite3
+import os
+
+load_dotenv()
+pathdb = os.getenv('DATABASE_PATH')
+app = FastAPI()
 
 class Sale(BaseModel):
     order_id: int
@@ -12,11 +18,8 @@ class Sale(BaseModel):
     payment_method: str
     city: str
 
-path_db = 'data/sales.db'
-app = FastAPI()
-
 def get_connection():
-    conn = sqlite3.connect(path_db)
+    conn = sqlite3.connect(pathdb)
     cursor = conn.cursor()
     return conn, cursor
 

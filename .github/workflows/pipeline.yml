@@ -13,6 +13,10 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Create .env
+        run: |
+          echo "DATABASE_PATH=data/sales.db" >> .env
+          echo "RAW_CSV_PATH=data/raw/sales_sample.csv" >> .env
       - name: Create database
         run: PYTHONPATH=. python -c "from pipeline.database import create_table; create_table()"
       - name: Run tests
