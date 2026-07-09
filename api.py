@@ -1,11 +1,10 @@
+import psycopg2
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
-import sqlite3
 import os
 
 load_dotenv()
-pathdb = os.getenv('DATABASE_PATH')
 app = FastAPI()
 
 class Sale(BaseModel):
@@ -19,7 +18,7 @@ class Sale(BaseModel):
     city: str
 
 def get_connection():
-    conn = sqlite3.connect(pathdb)
+    conn = psycopg2.connect(host = os.getenv('DB_HOST'), dbname = os.getenv('DB_NAME'), user = os.getenv('DB_USER'),password = os.getenv('DB_PASSWORD'), port = os.getenv('DB_PORT'))
     cursor = conn.cursor()
     return conn, cursor
 
@@ -37,21 +36,21 @@ def get_sales():
 
 def get_sale_by_id(id: int):
     conn, cursor = get_connection()
-    cursor.execute('SELECT * FROM sales WHERE order_id = ?', (id,))
+    cursor.execute('SELECT * FROM sales WHERE order_id = %s', (id,))
     data = row_to_dict(cursor)
     conn.close()
     return data
 
 def get_sale_by_city(city: str):
     conn, cursor = get_connection()
-    cursor.execute('SELECT * FROM sales WHERE city = ?', (city,))
+    cursor.execute('SELECT * FROM sales WHERE city = %s', (city,))
     data = row_to_dict(cursor)
     conn.close()
     return data
 
 def get_sale_by_payment_method(payment_method: str):
     conn, cursor = get_connection()
-    cursor.execute('SELECT * FROM sales WHERE payment_method = ?', (payment_method,))
+    cursor.execute('SELECT * FROM sales WHERE payment_method = %s', (payment_method,))
     data = row_to_dict(cursor)
     conn.close()
     return data
@@ -72,13 +71,13 @@ def get_summary():
 
 def insert_sale(sale):
     conn, cursor = get_connection()
-    cursor.execute('INSERT INTO sales VALUES (?, ?, ?, ?, ?, ?, ?, ?)', (sale.order_id, sale.customer_id, sale.product_name, sale.quantity, sale.unit_price, sale.sale_date, sale.payment_method, sale.city))
+    cursor.execute('INSERT INTO sales VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (sale.order_id, sale.customer_id, sale.product_name, sale.quantity, sale.unit_price, sale.sale_date, sale.payment_method, sale.city))
     conn.commit()
     conn.close()
 
 def remove_sale(order_id: int):
     conn, cursor = get_connection()
-    cursor.execute('DELETE FROM sales WHERE order_id = ?', (order_id,))
+    cursor.execute('DELETE FROM sales WHERE order_id = %s', (order_id,))
     conn.commit()
     conn.close()
 
