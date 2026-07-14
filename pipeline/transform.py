@@ -1,17 +1,18 @@
 from datetime import datetime
 import logging
+from pipeline.schema_loader import load_schema
 
 def clean_data(sales):
+    schema = load_schema()
     logging.info('Cleaning data...')
     for sale in sales:
-        sale['order_id'] = sale['order_id'].strip()
-        sale['customer_id'] = sale['customer_id'].strip()
-        sale['product_name'] = sale['product_name'].strip()
-        sale['quantity'] = sale['quantity'].strip()
-        sale['unit_price'] = sale['unit_price'].strip()
-        sale['sale_date'] = sale['sale_date'].strip()
-        sale['payment_method'] = sale['payment_method'].strip()
-        sale['city'] = sale['city'].strip()
+        for field in schema['fields']:
+            sale[field['name']] = sale[field['name']].strip()
+            sale[field['name']] = sale[field['name']].strip()
+            sale[field['name']] = sale[field['name']].strip()
+            sale[field['name']] = sale[field['name']].strip()
+            sale[field['name']] = sale[field['name']].strip()
+            sale[field['name']] = sale[field['name']].strip()
     logging.info(f'{len(sales)} records cleaned')
     return sales
 

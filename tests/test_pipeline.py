@@ -17,6 +17,7 @@ def test_clean_data():
     }
     result = clean_data([sale])
     assert result[0]['order_id'] == '1'
+    assert result[0]['product_name'] == 'Notebook'
 
 def test_validate_data():
     valid_sale = {
