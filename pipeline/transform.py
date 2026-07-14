@@ -8,11 +8,6 @@ def clean_data(sales):
     for sale in sales:
         for field in schema['fields']:
             sale[field['name']] = sale[field['name']].strip()
-            sale[field['name']] = sale[field['name']].strip()
-            sale[field['name']] = sale[field['name']].strip()
-            sale[field['name']] = sale[field['name']].strip()
-            sale[field['name']] = sale[field['name']].strip()
-            sale[field['name']] = sale[field['name']].strip()
     logging.info(f'{len(sales)} records cleaned')
     return sales
 
