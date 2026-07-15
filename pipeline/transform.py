@@ -12,32 +12,20 @@ def clean_data(sales):
     return sales
 
 def convert_data(sales):
+    schema = load_schema()
+    converts = {'int': int, 'float':  float}
     valid_sales = []
     invalid_sales = []
     logging.info('Converting data types...')
     for sale in sales:
         try:
-            sale['order_id'] = int(sale['order_id'])
-        except ValueError:
-            invalid_sales.append(sale)
-            continue
-        try:
-            sale['customer_id'] = int(sale['customer_id'])
-        except ValueError:
-            invalid_sales.append(sale)
-            continue
-        try:
-            sale['quantity'] = int(sale['quantity'])
-        except ValueError:
-            invalid_sales.append(sale)
-            continue
-        try:
-            sale['unit_price'] = float(sale['unit_price'])
-        except ValueError:
-            invalid_sales.append(sale)
-            continue
-        try:
-            sale['sale_date'] = datetime.strptime(sale['sale_date'], '%Y-%m-%d')
+            for field in schema['fields']:
+                if field['type'] == 'date':
+                    sale[field['name']] = datetime.strptime(sale[field['name']], field['format'])
+                elif field['type'] == 'string':
+                    continue
+                else:
+                    sale[field['name']] = converts[field['type']](sale[field['name']])
         except ValueError:
             invalid_sales.append(sale)
             continue
