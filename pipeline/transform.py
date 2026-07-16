@@ -34,32 +34,19 @@ def convert_data(sales):
     return valid_sales, invalid_sales
 
 def validate_data(valid_sales, invalid_sales):
+    schema = load_schema()
     approved_sales = []
     rejected_sales = []
     logging.info('Validating business rules...')
     for sale in valid_sales:
-        if sale['order_id'] <= 0:
-            rejected_sales.append(sale)
-            continue
-        if sale['customer_id'] <= 0:
-            rejected_sales.append(sale)
-            continue
-        if sale['product_name'] == '':
-            rejected_sales.append(sale)
-            continue
-        if sale['quantity'] <= 0:
-            rejected_sales.append(sale)
-            continue
-        if sale['unit_price'] <= 0:
-            rejected_sales.append(sale)
-            continue
-        if sale['payment_method'] == '':
-            rejected_sales.append(sale)
-            continue
-        if sale['city'] == '':
-            rejected_sales.append(sale)
-            continue
-        approved_sales.append(sale)
+        rejected = False
+        for field in schema['fields']:
+            if ('min' in field and sale[field['name']] < field['min']) or (field.get('required') and sale[field['name']] == ''):
+                rejected_sales.append(sale)
+                rejected = True
+                break
+        if not rejected:
+            approved_sales.append(sale)
     rejected_sales.extend(invalid_sales)
     logging.info(f'{len(approved_sales)} approved | {len(rejected_sales)} rejected after validation')
     return approved_sales, rejected_sales
