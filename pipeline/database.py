@@ -1,8 +1,11 @@
 from dotenv import load_dotenv
+from pipeline.schema_loader import load_schema
 import os
 import psycopg2
 import logging
 load_dotenv()
+
+sql_type = {'int':'INTEGER', 'float':'REAL', 'string':'TEXT', 'date':'TEXT'}
 
 def get_connection():
     conn = psycopg2.connect(host = os.getenv('DB_HOST'), dbname = os.getenv('DB_NAME'), user = os.getenv('DB_USER'), password = os.getenv('DB_PASSWORD'), port = os.getenv('DB_PORT'))
@@ -10,9 +13,14 @@ def get_connection():
     return conn, cursor
 
 def create_table():
+    collums = []
+    schema = load_schema()
+    for field in schema['fields']:
+        collums.append(f"{field['name']} {sql_type[field['type']]}")
+    sql_collums = ', '.join(collums)
     conn, cursor = get_connection()
     logging.info('Creating tables if not exists...')
-    cursor.execute('CREATE TABLE IF NOT EXISTS sales (order_id INTEGER, customer_id INTEGER, product_name TEXT, quantity INTEGER, unit_price REAL, sale_date TEXT, payment_method TEXT, city TEXT)')
+    cursor.execute(f'CREATE TABLE IF NOT EXISTS {schema["table_name"]} ({sql_collums})')
     cursor.execute('CREATE TABLE IF NOT EXISTS rejected_sales (order_id TEXT, customer_id TEXT, product_name TEXT, quantity TEXT, unit_price TEXT, sale_date TEXT, payment_method TEXT, city TEXT)')
     conn.commit()
     conn.close()
