@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
+from pipeline.schema_loader import load_schema
 
 load_dotenv()
 app = FastAPI()
@@ -28,29 +29,33 @@ def row_to_dict(cursor):
     return data
 
 def get_sales():
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute("SELECT * FROM sales")
+    cursor.execute(f'SELECT * FROM {schema["table_name"]}')
     data = row_to_dict(cursor)
     conn.close()
     return data
 
 def get_sale_by_id(id: int):
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute('SELECT * FROM sales WHERE order_id = %s', (id,))
+    cursor.execute(f'SELECT * FROM {schema["table_name"]} WHERE order_id = %s', (id,))
     data = row_to_dict(cursor)
     conn.close()
     return data
 
 def get_sale_by_city(city: str):
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute('SELECT * FROM sales WHERE city = %s', (city,))
+    cursor.execute(f'SELECT * FROM {schema["table_name"]} WHERE city = %s', (city,))
     data = row_to_dict(cursor)
     conn.close()
     return data
 
 def get_sale_by_payment_method(payment_method: str):
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute('SELECT * FROM sales WHERE payment_method = %s', (payment_method,))
+    cursor.execute(f'SELECT * FROM {schema["table_name"]} WHERE payment_method = %s', (payment_method,))
     data = row_to_dict(cursor)
     conn.close()
     return data
@@ -63,21 +68,24 @@ def get_rejected_sales():
     return data
 
 def get_summary():
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute('SELECT(SELECT COUNT(*) FROM sales)+(SELECT COUNT(*) FROM rejected_sales) AS total_records,(SELECT SUM(unit_price) FROM sales) AS total_sum;')
+    cursor.execute(f'SELECT(SELECT COUNT(*) FROM {schema["table_name"]})+(SELECT COUNT(*) FROM rejected_sales) AS total_records,(SELECT SUM(unit_price) FROM {schema["table_name"]}) AS total_sum;')
     data = row_to_dict(cursor)
     conn.close()
     return data
 
 def insert_sale(sale):
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute('INSERT INTO sales VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (sale.order_id, sale.customer_id, sale.product_name, sale.quantity, sale.unit_price, sale.sale_date, sale.payment_method, sale.city))
+    cursor.execute(f'INSERT INTO {schema["table_name"]} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (sale.order_id, sale.customer_id, sale.product_name, sale.quantity, sale.unit_price, sale.sale_date, sale.payment_method, sale.city))
     conn.commit()
     conn.close()
 
 def remove_sale(order_id: int):
+    schema = load_schema()
     conn, cursor = get_connection()
-    cursor.execute('DELETE FROM sales WHERE order_id = %s', (order_id,))
+    cursor.execute(f'DELETE FROM {schema["table_name"]} WHERE order_id = %s', (order_id,))
     conn.commit()
     conn.close()
 
