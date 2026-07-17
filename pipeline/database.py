@@ -27,12 +27,23 @@ def create_table():
     logging.info('Table ready')
 
 def insert_data(approved_sales, rejected_sales):
+    schema = load_schema()
+    placeholders = ', '.join(['%s'] * len(schema['fields']))
     conn, cursor = get_connection()
     logging.info('Loading data into database')
     for sale in approved_sales:
-        cursor.execute('INSERT INTO sales VALUES(%s, %s, %s, %s, %s, %s, %s, %s)', (sale['order_id'], sale['customer_id'], sale['product_name'],sale['quantity'], sale['unit_price'], sale['sale_date'].strftime('%Y-%m-%d'), sale['payment_method'], sale['city']))
+        values = []
+        for fields in schema['fields']:
+            if fields['type'] == 'date':
+                values.append(sale[fields['name']].strftime('%Y-%m-%d'))
+            else:
+                values.append(sale[fields['name']])
+        cursor.execute(f'INSERT INTO {schema["table_name"]} VALUES({placeholders})', values)
     for sale in rejected_sales:
-        cursor.execute('INSERT INTO rejected_sales VALUES(%s, %s, %s, %s, %s, %s, %s, %s)',(sale['order_id'], sale['customer_id'], sale['product_name'], sale['quantity'],sale['unit_price'], sale['sale_date'], sale['payment_method'], sale['city']))
+        values = []
+        for fields in schema['fields']:
+            values.append(sale[fields['name']])
+        cursor.execute(f'INSERT INTO rejected_sales VALUES({placeholders})', values)
     conn.commit()
     conn.close()
     logging.info(f'{len(approved_sales)} records loaded | {len(rejected_sales)} rejected')
