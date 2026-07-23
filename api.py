@@ -1,22 +1,21 @@
 import psycopg2
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 import os
 from pipeline.schema_loader import load_schema
 
 load_dotenv()
 app = FastAPI()
 
-class Sale(BaseModel):
-    order_id: int
-    customer_id: int
-    product_name: str
-    quantity: int
-    unit_price: float
-    sale_date: str
-    payment_method: str
-    city: str
+python_types = {'int': int, 'float': float, 'string': str, 'date': str}
+
+_schema = load_schema()
+_fields = {}
+for field in _schema['fields']:
+    _fields[field['name']] = (python_types[field['type']], ...)
+
+Sale = create_model('Sale', **_fields)
 
 def get_connection():
     conn = psycopg2.connect(host = os.getenv('DB_HOST'), dbname = os.getenv('DB_NAME'), user = os.getenv('DB_USER'),password = os.getenv('DB_PASSWORD'), port = os.getenv('DB_PORT'))
