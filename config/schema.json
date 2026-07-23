@@ -1,50 +1,13 @@
 {
-    "table_name": "sales",
-    "fields": [
-        {
-            "name": "order_id",
-            "type": "int",
-            "required": true,
-            "min": 1
-        },
-        {
-            "name": "customer_id",
-            "type": "int",
-            "required": true,
-            "min": 1
-        },
-        {
-            "name": "product_name",
-            "type": "string",
-            "required": true
-        },
-        {
-            "name": "quantity",
-            "type": "int",
-            "required": true,
-            "min": 1
-        },
-        {
-            "name": "unit_price",
-            "type": "float",
-            "required": true,
-            "min": 0.01
-        },
-        {
-            "name": "sale_date",
-            "type": "date",
-            "required": true,
-            "format": "%Y-%m-%d"
-        },
-        {
-            "name": "payment_method",
-            "type": "string",
-            "required": true
-        },
-        {
-            "name": "city",
-            "type": "string",
-            "required": true
-        }
-    ]
+  "table_name": "sales",
+  "fields": [
+    {"name": "order_id", "type": "int", "required": true, "min": 1, "primary_key": true},
+    {"name": "customer_id", "type": "int", "required": true, "min": 1},
+    {"name": "product_name", "type": "string", "required": true},
+    {"name": "quantity", "type": "int", "required": true, "min": 1},
+    {"name": "unit_price", "type": "float", "required": true, "min": 0.01},
+    {"name": "sale_date", "type": "date", "required": true, "format": "%Y-%m-%d"},
+    {"name": "payment_method", "type": "string", "required": true},
+    {"name": "city", "type": "string", "required": true}
+  ]
 }

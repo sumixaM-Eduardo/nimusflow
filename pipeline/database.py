@@ -16,7 +16,10 @@ def create_table():
     collums = []
     schema = load_schema()
     for field in schema['fields']:
-        collums.append(f"{field['name']} {sql_type[field['type']]}")
+        if field.get('primary_key'):
+            collums.append(f"{field['name']} {sql_type[field['type']]} PRIMARY KEY")
+        else:
+            collums.append(f"{field['name']} {sql_type[field['type']]}")
     sql_collums = ', '.join(collums)
     conn, cursor = get_connection()
     logging.info('Creating tables if not exists...')
@@ -31,19 +34,25 @@ def insert_data(approved_sales, rejected_sales):
     placeholders = ', '.join(['%s'] * len(schema['fields']))
     conn, cursor = get_connection()
     logging.info('Loading data into database')
+    duplicates = 0
     for sale in approved_sales:
         values = []
-        for fields in schema['fields']:
-            if fields['type'] == 'date':
-                values.append(sale[fields['name']].strftime('%Y-%m-%d'))
+        for field in schema['fields']:
+            if field['type'] == 'date':
+                values.append(sale[field['name']].strftime('%Y-%m-%d'))
             else:
-                values.append(sale[fields['name']])
-        cursor.execute(f'INSERT INTO {schema["table_name"]} VALUES({placeholders})', values)
+                values.append(sale[field['name']])
+        try:
+            cursor.execute(f'INSERT INTO {schema["table_name"]} VALUES({placeholders})', values)
+        except psycopg2.errors.UniqueViolation:
+            conn.rollback()
+            duplicates += 1
+            continue
     for sale in rejected_sales:
         values = []
-        for fields in schema['fields']:
-            values.append(sale[fields['name']])
+        for field in schema['fields']:
+            values.append(sale[field['name']])
         cursor.execute(f'INSERT INTO rejected_sales VALUES({placeholders})', values)
     conn.commit()
     conn.close()
-    logging.info(f'{len(approved_sales)} records loaded | {len(rejected_sales)} rejected')
+    logging.info(f'{len(approved_sales) - duplicates} records loaded | {duplicates} duplicates skipped | {len(rejected_sales)} rejected')
