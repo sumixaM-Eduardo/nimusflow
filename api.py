@@ -77,8 +77,12 @@ def get_summary():
 
 def insert_sale(sale):
     schema = load_schema()
+    placeholders = ', '.join(['%s'] * len(schema['fields']))
+    values = []
+    for field in schema['fields']:
+        values.append(getattr(sale, field['name']))
     conn, cursor = get_connection()
-    cursor.execute(f'INSERT INTO {schema["table_name"]} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (sale.order_id, sale.customer_id, sale.product_name, sale.quantity, sale.unit_price, sale.sale_date, sale.payment_method, sale.city))
+    cursor.execute(f'INSERT INTO {schema["table_name"]} VALUES({placeholders})', values)
     conn.commit()
     conn.close()
 
